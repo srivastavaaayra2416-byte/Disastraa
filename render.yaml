@@ -1,0 +1,34 @@
+services:
+  # Web service (FastAPI + Embedded Frontend)
+  - type: web
+    name: disastra-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: disastra-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: disastra-redis
+          property: connectionString
+
+  # Managed Redis Cache / Message Broker
+  - type: redis
+    name: disastra-redis
+    plan: free
+    region: oregon
+    ipAllowList: []
+
+databases:
+  # Managed PostgreSQL with PostGIS support
+  - name: disastra-db
+    plan: free
+    region: oregon
+    postgresMajorVersion: 16
